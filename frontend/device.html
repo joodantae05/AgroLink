@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agrolink | Device</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="logo">Agrolink</div>
+        <nav>
+          <a href="index.html">Login</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="device.html" class="active">Device</a>
+          <a href="alerts.html">Alerts</a>
+          <a href="settings.html">Settings</a>
+          <a href="privacy.html">RGPD</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Device detail</p>
+          <h1>ESP8266 - serre A</h1>
+          <p>Etat: en ligne. Derniere mesure recu il y a 2 minutes.</p>
+        </div>
+        <div class="surface">
+          <h2>Configuration</h2>
+          <p>Mode: cycle 5 min</p>
+          <p>API key: ********</p>
+          <button class="button" type="button">Rotation API key</button>
+        </div>
+      </section>
+
+      <section class="section-title">
+        <h2>Mesures recentes</h2>
+        <span class="status-pill">Dernieres 24h</span>
+      </section>
+
+      <div class="surface">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Valeur</th>
+              <th>Unite</th>
+              <th>Horodatage</th>
+            </tr>
+          </thead>
+          <tbody id="readings-body"></tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agrolink | Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="logo">Agrolink</div>
+        <nav>
+          <a href="index.html" class="active">Login</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="device.html">Device</a>
+          <a href="alerts.html">Alerts</a>
+          <a href="settings.html">Settings</a>
+          <a href="privacy.html">RGPD</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Serre connectee</p>
+          <h1>Plateforme de suivi des cultures</h1>
+          <p>
+            Agrolink rassemble les donnees des capteurs et aide a suivre l'etat
+            des cultures en temps reel. Connexion securisee avec 2FA.
+          </p>
+          <p class="footer-note">
+            Utilisez ce portail pour acceder aux mesures, regler les seuils et
+            recevoir des alertes.
+          </p>
+        </div>
+        <div class="surface auth-grid">
+          <div>
+            <h2>Connexion</h2>
+            <form class="form">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="you@agrolink.local" />
+              <label for="password">Mot de passe</label>
+              <input id="password" type="password" placeholder="********" />
+              <button class="button" type="button">Se connecter</button>
+            </form>
+          </div>
+          <div>
+            <h2>Verification 2FA</h2>
+            <form class="form">
+              <label for="token">Code TOTP</label>
+              <input id="token" type="text" placeholder="123456" />
+              <button class="button" type="button">Verifier</button>
+            </form>
+            <p class="footer-note">Active apres validation du login.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

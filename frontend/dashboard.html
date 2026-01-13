@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agrolink | Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="logo">Agrolink</div>
+        <nav>
+          <a href="index.html">Login</a>
+          <a href="dashboard.html" class="active">Dashboard</a>
+          <a href="device.html">Device</a>
+          <a href="alerts.html">Alerts</a>
+          <a href="settings.html">Settings</a>
+          <a href="privacy.html">RGPD</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="section-title">
+        <h2>Vue globale</h2>
+        <span class="status-pill">Device online</span>
+      </section>
+
+      <div class="footer-note">Derniere synchro: <span id="last-update">-</span></div>
+
+      <section class="card-grid stagger" style="margin-top: 18px;">
+        <article class="metric-card" data-metric="light_lux">
+          <div class="metric-label">Luminosite</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">lux</div>
+        </article>
+        <article class="metric-card" data-metric="air_humidity">
+          <div class="metric-label">Humidite air</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">%</div>
+        </article>
+        <article class="metric-card" data-metric="air_temp">
+          <div class="metric-label">Temperature</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">c</div>
+        </article>
+        <article class="metric-card" data-metric="soil_moisture">
+          <div class="metric-label">Humidite sol</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">%</div>
+        </article>
+        <article class="metric-card" data-metric="co2">
+          <div class="metric-label">CO2</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">ppm</div>
+        </article>
+        <article class="metric-card" data-metric="pressure">
+          <div class="metric-label">Pression</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">hpa</div>
+        </article>
+        <article class="metric-card" data-metric="nutrient">
+          <div class="metric-label">Nutriment</div>
+          <div class="metric-value">-</div>
+          <div class="metric-unit">ec</div>
+        </article>
+      </section>
+
+      <section class="section-title">
+        <h2>Tendance capteurs</h2>
+        <span class="status-pill">7 derniers jours</span>
+      </section>
+      <div class="chart-slab">
+        <p>Graphiques a integrer (courbes par capteur).</p>
+      </div>
+
+      <section class="section-title">
+        <h2>Alertes recentes</h2>
+        <a class="badge" href="alerts.html">Voir tout</a>
+      </section>
+      <div id="alert-list" class="alert-list"></div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agrolink | Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="logo">Agrolink</div>
+        <nav>
+          <a href="index.html">Login</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="device.html">Device</a>
+          <a href="alerts.html">Alerts</a>
+          <a href="settings.html" class="active">Settings</a>
+          <a href="privacy.html">RGPD</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Parametres</p>
+          <h1>Seuils et securite</h1>
+          <p>Definir les seuils par capteur et activer la double authentification.</p>
+        </div>
+        <div class="surface">
+          <h2>2FA</h2>
+          <form class="form">
+            <label for="totp">Code TOTP</label>
+            <input id="totp" type="text" placeholder="123456" />
+            <button class="button" type="button">Activer 2FA</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="section-title">
+        <h2>Seuils capteurs</h2>
+        <span class="status-pill">POC</span>
+      </section>
+
+      <div class="surface">
+        <form class="form">
+          <label for="sensor">Capteur</label>
+          <select id="sensor">
+            <option>air_temp</option>
+            <option>air_humidity</option>
+            <option>soil_moisture</option>
+            <option>co2</option>
+          </select>
+          <label for="min">Valeur min</label>
+          <input id="min" type="number" placeholder="20" />
+          <label for="max">Valeur max</label>
+          <input id="max" type="number" placeholder="28" />
+          <button class="button" type="button">Sauvegarder</button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
