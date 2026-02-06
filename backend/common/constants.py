@@ -1,9 +1,6 @@
 SENSOR_TYPES = [
-    ('light_lux', 'Light (lux)'),
-    ('air_humidity', 'Air humidity'),
-    ('air_temp', 'Air temperature'),
-    ('soil_moisture', 'Soil moisture'),
-    ('co2', 'CO2'),
+    ('humidity', 'Humidity'),
+    ('temperature', 'Temperature'),
     ('pressure', 'Pressure'),
-    ('nutrient', 'Nutrient'),
+    ('soil_ph', 'Soil acidity (pH)'),
 ]

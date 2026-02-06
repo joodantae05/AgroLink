@@ -10,4 +10,5 @@
 
 - This firmware sends JSON to the backend endpoint:
   `POST /api/v1/devices/{device_id}/telemetry` using `X-API-Key`.
+- The default payload includes 4 sensors: `humidity`, `temperature`, `pressure`, `soil_ph`.
 - Replace placeholder sensor functions with real drivers.

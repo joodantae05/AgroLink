@@ -1,11 +1,8 @@
 const SAMPLE = {
-  light_lux: { label: 'Light', value: 1240, unit: 'lux' },
-  air_humidity: { label: 'Air humidity', value: 62, unit: '%' },
-  air_temp: { label: 'Air temp', value: 23.6, unit: 'c' },
-  soil_moisture: { label: 'Soil moisture', value: 38, unit: '%' },
-  co2: { label: 'CO2', value: 640, unit: 'ppm' },
+  humidity: { label: 'Humidity', value: 62, unit: '%' },
+  temperature: { label: 'Temperature', value: 23.6, unit: 'c' },
   pressure: { label: 'Pressure', value: 1008, unit: 'hpa' },
-  nutrient: { label: 'Nutrient', value: 1.4, unit: 'ec' }
+  soil_ph: { label: 'Soil acidity', value: 6.4, unit: 'ph' }
 };
 
 function updateMetrics() {
@@ -30,10 +27,10 @@ function populateReadings() {
   const table = document.getElementById('readings-body');
   if (!table) return;
   const rows = [
-    ['air_temp', 23.6, 'c', '2025-02-01 10:10'],
-    ['air_humidity', 62, '%', '2025-02-01 10:10'],
-    ['co2', 640, 'ppm', '2025-02-01 10:10'],
-    ['soil_moisture', 38, '%', '2025-02-01 10:10'],
+    ['temperature', 23.6, 'c', '2025-02-01 10:10'],
+    ['humidity', 62, '%', '2025-02-01 10:10'],
+    ['pressure', 1008, 'hpa', '2025-02-01 10:10'],
+    ['soil_ph', 6.4, 'ph', '2025-02-01 10:10'],
   ];
   table.innerHTML = rows
     .map(
@@ -47,8 +44,8 @@ function populateAlerts() {
   const list = document.getElementById('alert-list');
   if (!list) return;
   const alerts = [
-    { title: 'CO2 high', detail: 'Value 980 ppm', time: '10:05' },
-    { title: 'Soil moisture low', detail: 'Value 22%', time: '09:40' },
+    { title: 'Pressure high', detail: 'Value 1022 hpa', time: '10:05' },
+    { title: 'Soil acidity out of range', detail: 'Value 5.2 ph', time: '09:40' },
   ];
   list.innerHTML = alerts
     .map(

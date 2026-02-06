@@ -16,13 +16,10 @@ const unsigned long MEASURE_INTERVAL_MS = 5UL * 60UL * 1000UL;
 
 unsigned long lastMeasure = 0;
 
-float readLightLux() { return 1240.5f; }
-float readAirHumidity() { return 62.0f; }
-float readAirTemp() { return 23.6f; }
-float readSoilMoisture() { return 38.0f; }
-float readCO2() { return 640.0f; }
+float readHumidity() { return 62.0f; }
+float readTemperature() { return 23.6f; }
 float readPressure() { return 1008.0f; }
-float readNutrient() { return 1.4f; }
+float readSoilPH() { return 6.40f; }
 
 String isoTimeUtc() {
   time_t now = time(nullptr);
@@ -35,19 +32,17 @@ String isoTimeUtc() {
 String buildPayload() {
   String ts = isoTimeUtc();
   String payload = "{";
-  payload += ""device_id":"" + String(DEVICE_ID) + "",";
-  payload += ""ts":"" + ts + "",";
-  payload += ""readings":[";
+  payload += "\"device_id\":\"" + String(DEVICE_ID) + "\",";
+  payload += "\"ts\":\"" + ts + "\",";
+  payload += "\"readings\":[";
 
-  payload += "{"type":"light_lux","value":" + String(readLightLux(), 1) + ","unit":"lux"},";
-  payload += "{"type":"air_humidity","value":" + String(readAirHumidity(), 1) + ","unit":"%"},";
-  payload += "{"type":"air_temp","value":" + String(readAirTemp(), 1) + ","unit":"c"},";
-  payload += "{"type":"soil_moisture","value":" + String(readSoilMoisture(), 1) + ","unit":"%"},";
-  payload += "{"type":"co2","value":" + String(readCO2(), 0) + ","unit":"ppm"},";
-  payload += "{"type":"pressure","value":" + String(readPressure(), 1) + ","unit":"hpa"},";
-  payload += "{"type":"nutrient","value":" + String(readNutrient(), 2) + ","unit":"ec"}";
+  payload += "{\"type\":\"humidity\",\"value\":" + String(readHumidity(), 1) + ",\"unit\":\"%\"},";
+  payload += "{\"type\":\"temperature\",\"value\":" + String(readTemperature(), 1) + ",\"unit\":\"c\"},";
+  payload += "{\"type\":\"pressure\",\"value\":" + String(readPressure(), 1) + ",\"unit\":\"hpa\"},";
+  payload += "{\"type\":\"soil_ph\",\"value\":" + String(readSoilPH(), 2) + ",\"unit\":\"ph\"}";
 
   payload += "]}";
+
   return payload;
 }
 

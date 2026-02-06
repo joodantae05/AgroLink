@@ -11,7 +11,7 @@ Flux principal :
 ```
 
 Rappels CDC (pages 10-14) :
-- Capteurs : luminosite, humidite sol/air, CO2, nutriments, pression, chaleur/temperature.
+- Capteurs retenus pour ce projet : humidite, temperature, pression et acidite du sol (pH).
 - ESP8266 en C++ pour capter et transmettre.
 - Web app en Python/PHP, stack Django + "Symphony" (probable Symfony).
 - Base MariaDB ou MongoDB.
@@ -23,12 +23,10 @@ Rappels CDC (pages 10-14) :
 ### 2.1 Capteurs et interfaces (POC)
 
 Objectif : fournir des mesures propres et exploitables, sans choix definitif de model.
-- Luminosite : capteur I2C (ex. BH1750).
-- Humidite air + temperature : capteur 1-wire/I2C (ex. DHT22/SHT).
-- Humidite sol : capteur analogique capacitif.
-- CO2 : capteur UART (ex. MH-Z19B ou equivalent).
-- Pression : capteur I2C (ex. BMP280).
-- Nutriments : capteur EC/NPK via analogique ou UART (selon budget).
+- Humidite : capteur 1-wire/I2C (ex. DHT22/SHT).
+- Temperature : capteur 1-wire/I2C (ex. DHT22/SHT).
+- Pression : capteur I2C (ex. BMP280/BME280).
+- Acidite du sol : sonde pH analogique (avec calibration 2 points).
 
 ### 2.2 Fonctionnalites firmware (C++)
 
@@ -55,13 +53,10 @@ Exemple de payload JSON (ASCII) :
   "device_id": "agrolink-esp-001",
   "ts": "2025-02-01T10:15:00Z",
   "readings": [
-    {"type": "light_lux", "value": 1200.5, "unit": "lux"},
-    {"type": "air_humidity", "value": 61.2, "unit": "%"},
-    {"type": "air_temp", "value": 23.4, "unit": "c"},
-    {"type": "soil_moisture", "value": 38.0, "unit": "%"},
-    {"type": "co2", "value": 650, "unit": "ppm"},
+    {"type": "humidity", "value": 61.2, "unit": "%"},
+    {"type": "temperature", "value": 23.4, "unit": "c"},
     {"type": "pressure", "value": 1009.2, "unit": "hpa"},
-    {"type": "nutrient", "value": 1.3, "unit": "ec"}
+    {"type": "soil_ph", "value": 6.4, "unit": "ph"}
   ]
 }
 ```
@@ -180,7 +175,7 @@ Mesures minimales :
 
 - Design sobre, lisible, fonds clairs.
 - Couleurs vertes pour etat normal, accentuation pour alertes.
-- Formats unifies : `lux`, `%`, `ppm`, `hpa`, `c`.
+- Formats unifies : `%`, `c`, `hpa`, `ph`.
 
 ## 5) RGPD + securite (politique et checklist)
 
@@ -211,4 +206,3 @@ Mesures minimales :
 - Dashboard web avec mesures temps reel.
 - Auth + 2FA.
 - Document RGPD + checklist securite.
-

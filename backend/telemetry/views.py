@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.constants import SENSOR_TYPES
 from common.utils import parse_iso8601
 from devices.auth import DeviceAPIKeyAuthentication
 from .models import Reading
@@ -27,13 +28,14 @@ class TelemetryIngestView(APIView):
         payload = request.data or {}
         ts = parse_iso8601(payload.get('ts')) or dj_timezone.now()
         readings = payload.get('readings') or []
+        allowed_sensor_types = {sensor[0] for sensor in SENSOR_TYPES}
 
         rows = []
         for item in readings:
             sensor_type = item.get('type')
             value = item.get('value')
             unit = item.get('unit') or ''
-            if sensor_type is None or value is None:
+            if sensor_type is None or value is None or sensor_type not in allowed_sensor_types:
                 continue
             rows.append(Reading(device=device, sensor_type=sensor_type, value=value, unit=unit, measured_at=ts))
 
