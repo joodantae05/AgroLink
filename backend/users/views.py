@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Profile
-from .serializers import UserSerializer
+from .serializers import LoginSerializer, TempTokenCodeSerializer, TotpCodeSerializer, UserSerializer
 from .services import issue_tokens
 
 
@@ -22,10 +22,10 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        identifier = request.data.get('username') or request.data.get('email')
-        password = request.data.get('password')
-        if not identifier or not password:
-            return Response({'detail': 'Missing credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        identifier = serializer.validated_data.get('username') or serializer.validated_data.get('email')
+        password = serializer.validated_data.get('password')
 
         user = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
         if not user:
@@ -48,10 +48,10 @@ class TwoFactorVerifyView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        temp_token = request.data.get('temp_token')
-        code = request.data.get('code')
-        if not temp_token or not code:
-            return Response({'detail': 'Missing data'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TempTokenCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        temp_token = serializer.validated_data['temp_token']
+        code = serializer.validated_data['code']
 
         try:
             data = signing.loads(temp_token, salt=TEMP_TOKEN_SALT, max_age=TEMP_TOKEN_TTL)
@@ -84,9 +84,9 @@ class TwoFactorEnableView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        code = request.data.get('code')
-        if not code:
-            return Response({'detail': 'Missing code'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TotpCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        code = serializer.validated_data['code']
 
         profile = Profile.objects.get(user=request.user)
         secret = profile.ensure_totp_secret()
@@ -102,9 +102,9 @@ class TwoFactorDisableView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        code = request.data.get('code')
-        if not code:
-            return Response({'detail': 'Missing code'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TotpCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        code = serializer.validated_data['code']
 
         profile = Profile.objects.get(user=request.user)
         if not profile.totp_secret:

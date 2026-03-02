@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8000 https://localhost:8000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
     <title>Agrolink | Device</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -27,27 +31,39 @@
         <div>
           <p class="eyebrow">Device detail</p>
           <h1>ESP8266 - serre A</h1>
-          <p>Etat: en ligne. Derniere mesure recu il y a 2 minutes.</p>
+          <p>Etat: en ligne. Derniere mesure recue il y a 2 minutes.</p>
+          <ul class="meta-list">
+            <li><strong>Mode:</strong> cycle 5 min</li>
+            <li><strong>Reseau:</strong> Wi-Fi serre-2.4G</li>
+            <li><strong>Firmware:</strong> v1.3.2</li>
+          </ul>
         </div>
         <div class="surface">
           <h2>Configuration</h2>
-          <p>Mode: cycle 5 min</p>
           <p>API key: ********</p>
+          <p class="footer-note">Conseil: faire une rotation de cle tous les 90 jours.</p>
           <button class="button" type="button">Rotation API key</button>
         </div>
       </section>
+
+      <section class="section-title">
+        <h2>Etat des capteurs</h2>
+        <span class="status-pill">Monitoring live</span>
+      </section>
+      <section id="device-sensors-grid" class="card-grid"></section>
 
       <section class="section-title">
         <h2>Mesures recentes</h2>
         <span class="status-pill">Dernieres 24h</span>
       </section>
 
-      <div class="surface">
+      <div class="surface table-wrap">
         <table class="table">
           <thead>
             <tr>
               <th>Type</th>
               <th>Valeur</th>
+              <th>Etat</th>
               <th>Unite</th>
               <th>Horodatage</th>
             </tr>

@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8000 https://localhost:8000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
     <title>Agrolink | Settings</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -27,13 +31,18 @@
         <div>
           <p class="eyebrow">Parametres</p>
           <h1>Seuils et securite</h1>
-          <p>Definir les seuils par capteur et activer la double authentification.</p>
+          <p>Definissez des plages cibles simples pour chaque capteur et activez la protection de compte.</p>
+          <ul class="meta-list">
+            <li><strong>Objectif:</strong> interface rapide pour l'operateur terrain.</li>
+            <li><strong>Effet:</strong> moins d'alertes parasites, meilleures decisions.</li>
+          </ul>
         </div>
         <div class="surface">
           <h2>2FA</h2>
           <form class="form">
             <label for="totp">Code TOTP</label>
             <input id="totp" type="text" placeholder="123456" />
+            <p class="helper">Ajoutez la verification 2FA pour proteger l'acces au dashboard.</p>
             <button class="button" type="button">Activer 2FA</button>
           </form>
         </div>
@@ -48,15 +57,13 @@
         <form class="form">
           <label for="sensor">Capteur</label>
           <select id="sensor">
-            <option>temperature</option>
-            <option>humidity</option>
-            <option>pressure</option>
-            <option>soil_ph</option>
+            <option value="">Chargement des capteurs...</option>
           </select>
-          <label for="min">Valeur min</label>
+          <label for="min">Valeur minimale</label>
           <input id="min" type="number" placeholder="20" />
-          <label for="max">Valeur max</label>
+          <label for="max">Valeur maximale</label>
           <input id="max" type="number" placeholder="28" />
+          <p class="helper">Exemple: CO2 entre 450 et 1200 ppm, chaleur entre 18 et 28 c.</p>
           <button class="button" type="button">Sauvegarder</button>
         </form>
       </div>

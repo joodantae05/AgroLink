@@ -11,7 +11,7 @@ Flux principal :
 ```
 
 Rappels CDC (pages 10-14) :
-- Capteurs retenus pour ce projet : humidite, temperature, pression et acidite du sol (pH).
+- Capteurs retenus pour ce projet : luminosite, humidite air/sol, CO2, nutriments, pression et chaleur.
 - ESP8266 en C++ pour capter et transmettre.
 - Web app en Python/PHP, stack Django + "Symphony" (probable Symfony).
 - Base MariaDB ou MongoDB.
@@ -23,10 +23,13 @@ Rappels CDC (pages 10-14) :
 ### 2.1 Capteurs et interfaces (POC)
 
 Objectif : fournir des mesures propres et exploitables, sans choix definitif de model.
-- Humidite : capteur 1-wire/I2C (ex. DHT22/SHT).
-- Temperature : capteur 1-wire/I2C (ex. DHT22/SHT).
-- Pression : capteur I2C (ex. BMP280/BME280).
-- Acidite du sol : sonde pH analogique (avec calibration 2 points).
+- Luminosite : capteur BH1750/TSL2561 (I2C).
+- Humidite air : capteur DHT22/SHT31 (1-wire/I2C).
+- Humidite sol : capteur capacitif analogique (ADC).
+- CO2 : capteur NDIR (ex. MH-Z19, UART).
+- Nutriments : sonde EC/TDS pour indice nutritif.
+- Pression : capteur BMP280/BME280 (I2C).
+- Chaleur : temperature ambiante en degres C.
 
 ### 2.2 Fonctionnalites firmware (C++)
 
@@ -53,10 +56,13 @@ Exemple de payload JSON (ASCII) :
   "device_id": "agrolink-esp-001",
   "ts": "2025-02-01T10:15:00Z",
   "readings": [
-    {"type": "humidity", "value": 61.2, "unit": "%"},
-    {"type": "temperature", "value": 23.4, "unit": "c"},
+    {"type": "luminosity", "value": 18500, "unit": "lux"},
+    {"type": "air_humidity", "value": 61.2, "unit": "%"},
+    {"type": "soil_humidity", "value": 41.5, "unit": "%"},
+    {"type": "co2", "value": 780, "unit": "ppm"},
+    {"type": "nutrient_index", "value": 68, "unit": "%"},
     {"type": "pressure", "value": 1009.2, "unit": "hpa"},
-    {"type": "soil_ph", "value": 6.4, "unit": "ph"}
+    {"type": "heat", "value": 23.4, "unit": "c"}
   ]
 }
 ```
@@ -175,7 +181,7 @@ Mesures minimales :
 
 - Design sobre, lisible, fonds clairs.
 - Couleurs vertes pour etat normal, accentuation pour alertes.
-- Formats unifies : `%`, `c`, `hpa`, `ph`.
+- Formats unifies : `lux`, `%`, `ppm`, `hpa`, `c`.
 
 ## 5) RGPD + securite (politique et checklist)
 

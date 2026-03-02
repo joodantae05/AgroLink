@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8000 https://localhost:8000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
     <title>Agrolink | Dashboard</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -23,6 +27,41 @@
     </header>
 
     <main class="container">
+      <section class="hero-banner">
+        <div>
+          <p class="eyebrow">Pilotage en temps reel</p>
+          <h1>Tableau de bord de la serre intelligente</h1>
+          <p>
+            Visualisez rapidement les conditions de culture, les alertes et les
+            actions prioritaires pour maintenir un environnement stable pour les plantes.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="settings.html">Configurer les seuils</a>
+            <a class="button secondary" href="device.html">Voir le device</a>
+          </div>
+        </div>
+        <div class="surface">
+          <p class="eyebrow">Synthese instantanee</p>
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <div class="kpi-label">Capteurs actifs</div>
+              <div id="kpi-sensors" class="kpi-value">-</div>
+              <div class="kpi-sub">Flux telemetry en cours</div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-label">Alertes ouvertes</div>
+              <div id="kpi-alerts" class="kpi-value">-</div>
+              <div class="kpi-sub">Anomalies a verifier</div>
+            </article>
+            <article class="kpi-card">
+              <div class="kpi-label">Derniere synchro</div>
+              <div id="kpi-sync" class="kpi-value">-</div>
+              <div class="kpi-sub">Mise a jour automatique</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="section-title">
         <h2>Vue globale</h2>
         <span class="status-pill">Device online</span>
@@ -30,35 +69,21 @@
 
       <div class="footer-note">Derniere synchro: <span id="last-update">-</span></div>
 
-      <section class="card-grid stagger" style="margin-top: 18px;">
-        <article class="metric-card" data-metric="humidity">
-          <div class="metric-label">Humidite air</div>
-          <div class="metric-value">-</div>
-          <div class="metric-unit">%</div>
-        </article>
-        <article class="metric-card" data-metric="temperature">
-          <div class="metric-label">Temperature</div>
-          <div class="metric-value">-</div>
-          <div class="metric-unit">c</div>
-        </article>
-        <article class="metric-card" data-metric="pressure">
-          <div class="metric-label">Pression</div>
-          <div class="metric-value">-</div>
-          <div class="metric-unit">hpa</div>
-        </article>
-        <article class="metric-card" data-metric="soil_ph">
-          <div class="metric-label">Acidite du sol</div>
-          <div class="metric-value">-</div>
-          <div class="metric-unit">ph</div>
-        </article>
-      </section>
+      <section id="metrics-grid" class="card-grid stagger" style="margin-top: 18px;"></section>
 
       <section class="section-title">
         <h2>Tendance capteurs</h2>
         <span class="status-pill">7 derniers jours</span>
       </section>
-      <div class="chart-slab">
-        <p>Graphiques a integrer (courbes par capteur).</p>
+      <div class="chart-slab split">
+        <div>
+          <h3>Courbes capteurs</h3>
+          <p>Graphiques a integrer: luminosite, humidite, CO2, nutriments, pression et chaleur.</p>
+        </div>
+        <div>
+          <h3>Interpretation rapide</h3>
+          <ul id="insights-list" class="insight-list"></ul>
+        </div>
       </div>
 
       <section class="section-title">

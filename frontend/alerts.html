@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8000 https://localhost:8000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
     <title>Agrolink | Alerts</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -23,14 +27,32 @@
     </header>
 
     <main class="container">
-      <section class="section-title">
-        <h2>Historique des alertes</h2>
-        <span class="status-pill">0 non resolues</span>
+      <section class="surface toolbar">
+        <div class="stack">
+          <label for="alert-sensor">Capteur</label>
+          <select id="alert-sensor">
+            <option value="">Tous les capteurs</option>
+          </select>
+        </div>
+        <div class="stack">
+          <label for="alert-period">Periode</label>
+          <select id="alert-period">
+            <option>24h</option>
+            <option>7 jours</option>
+            <option>30 jours</option>
+          </select>
+        </div>
+        <button class="button secondary" type="button">Appliquer</button>
       </section>
 
-      <div id="alert-list" class="alert-list"></div>
+      <section class="section-title">
+        <h2>Historique des alertes</h2>
+        <span class="status-pill">Suivi priorise</span>
+      </section>
 
-      <p class="footer-note">Filtrer par capteur et periode dans une version future.</p>
+      <div id="alert-list" class="alert-list" data-mode="history"></div>
+
+      <p class="footer-note">Filtrez par capteur et periode pour identifier rapidement les causes recurrentes.</p>
     </main>
   </body>
 </html>

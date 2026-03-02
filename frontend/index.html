@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8000 https://localhost:8000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
     <title>Agrolink | Login</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -26,15 +30,16 @@
       <section class="hero">
         <div>
           <p class="eyebrow">Serre connectee</p>
-          <h1>Plateforme de suivi des cultures</h1>
+          <h1>Pilotez vos cultures simplement</h1>
           <p>
-            Agrolink rassemble les donnees des capteurs et aide a suivre l'etat
-            des cultures en temps reel. Connexion securisee avec 2FA.
+            Agrolink centralise les donnees capteurs en temps reel et transforme
+            les mesures en decisions immediates pour l'eclairage, l'arrosage et la nutrition.
           </p>
-          <p class="footer-note">
-            Utilisez ce portail pour acceder aux mesures, regler les seuils et
-            recevoir des alertes.
-          </p>
+          <ul class="feature-list">
+            <li>Vue globale des capteurs en moins de 10 secondes.</li>
+            <li>Alertes prioritaires pour agir rapidement.</li>
+            <li>Reglage simple des seuils selon la culture.</li>
+          </ul>
         </div>
         <div class="surface auth-grid">
           <div>
@@ -54,7 +59,7 @@
               <input id="token" type="text" placeholder="123456" />
               <button class="button" type="button">Verifier</button>
             </form>
-            <p class="footer-note">Active apres validation du login.</p>
+            <p class="footer-note">Saisie en 6 chiffres, active apres validation du login.</p>
           </div>
         </div>
       </section>
