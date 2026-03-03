@@ -1,54 +1,36 @@
 const API_BASE = window.AGROLINK_API_BASE || 'http://localhost:8000/api/v1';
+const DEVICE_ID = window.AGROLINK_DEVICE_ID || '';
+
+const IOT_SENSOR_TYPES = ['humidity', 'luminosity', 'temperature', 'pressure'];
+const IOT_SENSOR_SET = new Set(IOT_SENSOR_TYPES);
 
 const SENSOR_LABELS_FR = {
+  humidity: 'Humidite',
   luminosity: 'Luminosite',
-  air_humidity: 'Humidite air',
-  soil_humidity: 'Humidite sol',
-  co2: 'CO2',
-  nutrient_index: 'Nutriments',
-  pressure: 'Pression',
-  heat: 'Chaleur'
+  temperature: 'Temperature',
+  pressure: 'Pression'
 };
 
 const SENSOR_HINTS = {
+  humidity: 'Maintenir une humidite stable pour eviter le stress hydrique.',
   luminosity: 'Ajuster l eclairage selon la croissance.',
-  air_humidity: 'Limiter les stress hydriques et maladies.',
-  soil_humidity: 'Piloter l irrigation avec precision.',
-  co2: 'Maintenir la photosynthese active.',
-  nutrient_index: 'Suivre la nutrition et corriger si besoin.',
-  pressure: 'Observer les variations meteo.',
-  heat: 'Conserver une temperature de confort plante.'
+  temperature: 'Conserver une temperature de confort pour la plante.',
+  pressure: 'Observer les variations atmospheriques.'
 };
 
 const SENSOR_THRESHOLDS = {
+  humidity: { min: 45, max: 75 },
   luminosity: { min: 8000, max: 45000 },
-  air_humidity: { min: 45, max: 75 },
-  soil_humidity: { min: 30, max: 65 },
-  co2: { min: 400, max: 1200 },
-  nutrient_index: { min: 45, max: 90 },
-  pressure: { min: 980, max: 1035 },
-  heat: { min: 18, max: 29 }
+  temperature: { min: 18, max: 29 },
+  pressure: { min: 980, max: 1035 }
 };
 
 const DEFAULT_SENSORS = [
+  { type: 'humidity', label: 'Humidite', unit: '%' },
   { type: 'luminosity', label: 'Luminosite', unit: 'lux' },
-  { type: 'air_humidity', label: 'Humidite air', unit: '%' },
-  { type: 'soil_humidity', label: 'Humidite sol', unit: '%' },
-  { type: 'co2', label: 'CO2', unit: 'ppm' },
-  { type: 'nutrient_index', label: 'Nutriments', unit: '%' },
-  { type: 'pressure', label: 'Pression', unit: 'hpa' },
-  { type: 'heat', label: 'Chaleur', unit: 'c' }
+  { type: 'temperature', label: 'Temperature', unit: 'c' },
+  { type: 'pressure', label: 'Pression', unit: 'hpa' }
 ];
-
-const SAMPLE_VALUES = {
-  luminosity: 18500,
-  air_humidity: 62,
-  soil_humidity: 41.5,
-  co2: 780,
-  nutrient_index: 68,
-  pressure: 1008,
-  heat: 23.6
-};
 
 function escapeHtml(value) {
   const input = value == null ? '' : String(value);
@@ -62,22 +44,26 @@ function escapeHtml(value) {
 
 function normalizeSensors(rawSensors) {
   if (!Array.isArray(rawSensors)) return [];
-  return rawSensors
-    .map((sensor) => {
+  const byType = new Map();
+
+  rawSensors.forEach((sensor) => {
       if (!sensor || typeof sensor !== 'object') return null;
       const type = typeof sensor.type === 'string' ? sensor.type.trim() : '';
-      if (!type) return null;
+      if (!type || !IOT_SENSOR_SET.has(type)) return null;
+      if (byType.has(type)) return null;
 
       const labelRaw = typeof sensor.label === 'string' ? sensor.label.trim() : '';
       const unit = typeof sensor.unit === 'string' ? sensor.unit.trim().toLowerCase() : '';
 
-      return {
+      byType.set(type, {
         type,
         label: labelRaw || SENSOR_LABELS_FR[type] || type,
         unit
-      };
-    })
-    .filter(Boolean);
+      });
+      return null;
+    });
+
+  return IOT_SENSOR_TYPES.map((type) => byType.get(type)).filter(Boolean);
 }
 
 async function loadSensors() {
@@ -98,16 +84,55 @@ async function loadSensors() {
   return DEFAULT_SENSORS;
 }
 
-function getSampleValue(sensorType, index) {
-  if (Object.prototype.hasOwnProperty.call(SAMPLE_VALUES, sensorType)) {
-    return SAMPLE_VALUES[sensorType];
+function parseIsoDate(value) {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function normalizeSnapshotReadings(rawReadings) {
+  if (!Array.isArray(rawReadings)) return new Map();
+
+  const byType = new Map();
+  rawReadings.forEach((item) => {
+    if (!item || typeof item !== 'object') return;
+    const type = typeof item.type === 'string' ? item.type.trim() : '';
+    if (!type || !IOT_SENSOR_SET.has(type) || byType.has(type)) return;
+
+    const numericValue = Number(item.value);
+    if (!Number.isFinite(numericValue)) return;
+    byType.set(type, numericValue);
+  });
+
+  return byType;
+}
+
+async function loadLatestSnapshot() {
+  const params = new URLSearchParams();
+  if (DEVICE_ID) params.set('device_id', DEVICE_ID);
+  const query = params.toString();
+  const url = `${API_BASE}/snapshot${query ? `?${query}` : ''}`;
+
+  try {
+    const response = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!response.ok) {
+      throw new Error(`Unexpected status: ${response.status}`);
+    }
+
+    const body = await response.json();
+    return {
+      measuredAt: parseIsoDate(body && body.measured_at),
+      valuesByType: normalizeSnapshotReadings(body && body.readings)
+    };
+  } catch (_error) {
+    return { measuredAt: null, valuesByType: new Map() };
   }
-  return Number((10 + index * 3.2).toFixed(1));
 }
 
 function formatValue(value) {
-  if (Number.isNaN(Number(value))) return '-';
+  if (value === null || value === undefined || value === '') return '-';
   const n = Number(value);
+  if (!Number.isFinite(n)) return '-';
   const decimals = Number.isInteger(n) ? 0 : 1;
   return n.toLocaleString('fr-FR', {
     minimumFractionDigits: decimals,
@@ -131,18 +156,21 @@ function getStateBadgeClass(level) {
 }
 
 function getSensorState(sensorType, value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return { level: 'ok', label: 'Sans mesure' };
+
   const limits = SENSOR_THRESHOLDS[sensorType];
   if (!limits) return { level: 'ok', label: 'Stable' };
 
-  if (value < limits.min || value > limits.max) {
-    const reference = value < limits.min ? limits.min : limits.max;
-    const distanceRatio = Math.abs(value - reference) / Math.max(Math.abs(reference), 1);
+  if (numericValue < limits.min || numericValue > limits.max) {
+    const reference = numericValue < limits.min ? limits.min : limits.max;
+    const distanceRatio = Math.abs(numericValue - reference) / Math.max(Math.abs(reference), 1);
     if (distanceRatio >= 0.2) return { level: 'danger', label: 'Critique' };
     return { level: 'warn', label: 'Hors plage' };
   }
 
   const range = limits.max - limits.min;
-  const nearestEdge = Math.min(value - limits.min, limits.max - value);
+  const nearestEdge = Math.min(numericValue - limits.min, limits.max - numericValue);
   if (range > 0 && nearestEdge / range < 0.12) {
     return { level: 'warn', label: 'Proche seuil' };
   }
@@ -156,9 +184,10 @@ function getTargetText(sensorType, unit) {
   return `Cible ${limits.min}-${limits.max} ${unit}`;
 }
 
-function buildSnapshot(sensors) {
-  return sensors.map((sensor, index) => {
-    const value = getSampleValue(sensor.type, index);
+function buildSnapshot(sensors, valuesByType) {
+  return sensors.map((sensor) => {
+    const liveValue = valuesByType && valuesByType.has(sensor.type) ? valuesByType.get(sensor.type) : null;
+    const value = Number.isFinite(liveValue) ? liveValue : null;
     return {
       sensor,
       value,
@@ -263,8 +292,11 @@ function populateSensorOptions(sensors) {
 
 function buildAlerts(snapshot, measuredAt, mode) {
   const priority = { danger: 2, warn: 1, ok: 0 };
+  const validSnapshot = snapshot.filter(
+    (item) => item.value !== null && item.value !== undefined && Number.isFinite(Number(item.value))
+  );
 
-  const prioritized = [...snapshot].sort(
+  const prioritized = [...validSnapshot].sort(
     (a, b) => priority[b.state.level] - priority[a.state.level]
   );
 
@@ -289,6 +321,12 @@ function populateAlerts(snapshot, measuredAt) {
 
   const mode = list.dataset.mode === 'history' ? 'history' : 'latest';
   const alerts = buildAlerts(snapshot, measuredAt, mode);
+
+  if (alerts.length === 0) {
+    list.innerHTML =
+      '<div class="alert-item"><div><strong>Aucune alerte</strong><span>En attente de donnees capteurs depuis la base.</span></div><span class="badge">--:--</span></div>';
+    return 0;
+  }
 
   list.innerHTML = alerts
     .map((alert) => {
@@ -328,23 +366,30 @@ function populateInsights(snapshot) {
   if (!list) return;
 
   const critical = snapshot.find((item) => item.state.level === 'danger');
-  const warning = snapshot.find((item) => item.state.level === 'warn');
+  const caution = snapshot.find((item) => item.state.level === 'warn');
+  const humidity = snapshot.find((item) => item.sensor.type === 'humidity');
+  const temperature = snapshot.find((item) => item.sensor.type === 'temperature');
   const luminosity = snapshot.find((item) => item.sensor.type === 'luminosity');
-  const co2 = snapshot.find((item) => item.sensor.type === 'co2');
+  const pressure = snapshot.find((item) => item.sensor.type === 'pressure');
 
   const lines = [
+    humidity
+      ? `Humidite: ${formatValue(humidity.value)} ${humidity.sensor.unit} (${humidity.state.label}).`
+      : 'Humidite: information non disponible.',
+    temperature
+      ? `Temperature: ${formatValue(temperature.value)} ${temperature.sensor.unit} (${temperature.state.label}).`
+      : 'Temperature: information non disponible.',
     luminosity
       ? `Luminosite: ${formatValue(luminosity.value)} ${luminosity.sensor.unit} (${luminosity.state.label}).`
       : 'Luminosite: information non disponible.',
-    co2
-      ? `CO2: ${formatValue(co2.value)} ${co2.sensor.unit} (${co2.state.label}).`
-      : 'CO2: information non disponible.',
-    warning
-      ? `A surveiller: ${warning.sensor.label} proche de la limite.`
-      : 'Aucune valeur proche de seuil detectee.',
+    pressure
+      ? `Pression: ${formatValue(pressure.value)} ${pressure.sensor.unit} (${pressure.state.label}).`
+      : 'Pression: information non disponible.',
     critical
       ? `Priorite: corriger ${critical.sensor.label} des que possible.`
-      : 'Priorite: maintenir les reglages actuels.'
+      : caution
+        ? `A surveiller: ${caution.sensor.label} proche de la limite.`
+        : 'Aucune alerte capteur detectee.'
   ];
 
   list.innerHTML = lines.map((line) => `<li>${escapeHtml(line)}</li>`).join('');
@@ -373,8 +418,9 @@ function populateDeviceSensorState(snapshot) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const sensors = await loadSensors();
-  const measuredAt = new Date();
-  const snapshot = buildSnapshot(sensors);
+  const liveSnapshot = await loadLatestSnapshot();
+  const measuredAt = liveSnapshot.measuredAt || new Date();
+  const snapshot = buildSnapshot(sensors, liveSnapshot.valuesByType);
 
   ensureMetricCards(sensors);
   updateMetrics(snapshot, measuredAt);

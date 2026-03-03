@@ -17,12 +17,9 @@ const unsigned long MEASURE_INTERVAL_MS = 5UL * 60UL * 1000UL;
 unsigned long lastMeasure = 0;
 
 float readLuminosity() { return 18500.0f; }
-float readAirHumidity() { return 62.0f; }
-float readSoilHumidity() { return 41.5f; }
-float readCO2() { return 780.0f; }
-float readNutrientIndex() { return 68.0f; }
+float readHumidity() { return 62.0f; }
 float readPressure() { return 1008.0f; }
-float readHeat() { return 23.6f; }
+float readTemperature() { return 23.6f; }
 
 String isoTimeUtc() {
   time_t now = time(nullptr);
@@ -39,13 +36,10 @@ String buildPayload() {
   payload += "\"ts\":\"" + ts + "\",";
   payload += "\"readings\":[";
 
+  payload += "{\"type\":\"humidity\",\"value\":" + String(readHumidity(), 1) + ",\"unit\":\"%\"},";
   payload += "{\"type\":\"luminosity\",\"value\":" + String(readLuminosity(), 1) + ",\"unit\":\"lux\"},";
-  payload += "{\"type\":\"air_humidity\",\"value\":" + String(readAirHumidity(), 1) + ",\"unit\":\"%\"},";
-  payload += "{\"type\":\"soil_humidity\",\"value\":" + String(readSoilHumidity(), 1) + ",\"unit\":\"%\"},";
-  payload += "{\"type\":\"co2\",\"value\":" + String(readCO2(), 1) + ",\"unit\":\"ppm\"},";
-  payload += "{\"type\":\"nutrient_index\",\"value\":" + String(readNutrientIndex(), 1) + ",\"unit\":\"%\"},";
-  payload += "{\"type\":\"pressure\",\"value\":" + String(readPressure(), 1) + ",\"unit\":\"hpa\"},";
-  payload += "{\"type\":\"heat\",\"value\":" + String(readHeat(), 1) + ",\"unit\":\"c\"}";
+  payload += "{\"type\":\"temperature\",\"value\":" + String(readTemperature(), 1) + ",\"unit\":\"c\"},";
+  payload += "{\"type\":\"pressure\",\"value\":" + String(readPressure(), 1) + ",\"unit\":\"hpa\"}";
 
   payload += "]}";
 

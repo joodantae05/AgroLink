@@ -75,6 +75,78 @@ class SensorCatalogView(APIView):
         return Response({'sensors': SENSOR_CATALOG}, status=status.HTTP_200_OK)
 
 
+class LatestReadingsSnapshotView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        requested_device_id = request.query_params.get('device_id')
+        readings_qs = Reading.objects.order_by('-measured_at', '-created_at')
+
+        if requested_device_id:
+            try:
+                parsed_device_id = UUID(str(requested_device_id))
+            except (TypeError, ValueError):
+                return Response({'detail': 'Invalid device_id'}, status=status.HTTP_400_BAD_REQUEST)
+            readings_qs = readings_qs.filter(device_id=parsed_device_id)
+
+        latest_row = readings_qs.first()
+        if not latest_row:
+            return Response(
+                {
+                    'device_id': str(requested_device_id) if requested_device_id else None,
+                    'measured_at': None,
+                    'readings': [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        target_device_id = str(latest_row.device_id)
+        sensor_types = [sensor['type'] for sensor in SENSOR_CATALOG]
+
+        rows = (
+            Reading.objects.filter(device_id=target_device_id, sensor_type__in=sensor_types)
+            .order_by('-measured_at', '-created_at')
+        )
+
+        latest_by_type = {}
+        for row in rows:
+            if row.sensor_type not in latest_by_type:
+                latest_by_type[row.sensor_type] = row
+            if len(latest_by_type) == len(sensor_types):
+                break
+
+        response_rows = []
+        measured_at = None
+        for sensor in SENSOR_CATALOG:
+            sensor_type = sensor['type']
+            row = latest_by_type.get(sensor_type)
+            if not row:
+                continue
+
+            if measured_at is None or row.measured_at > measured_at:
+                measured_at = row.measured_at
+
+            response_rows.append(
+                {
+                    'type': sensor_type,
+                    'label': sensor['label'],
+                    'unit': sensor['unit'],
+                    'value': row.value,
+                    'measured_at': row.measured_at.isoformat(),
+                }
+            )
+
+        return Response(
+            {
+                'device_id': target_device_id,
+                'measured_at': measured_at.isoformat() if measured_at else None,
+                'readings': response_rows,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class ReadingViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ReadingSerializer

@@ -14,6 +14,8 @@ def root_view(request):
             'endpoints': {
                 'admin': '/admin/',
                 'api': '/api/v1/',
+                'api_catalog': '/api/v1/api-catalog',
+                'observability': '/api/v1/observability',
             },
         }
     )
@@ -22,6 +24,7 @@ def root_view(request):
 urlpatterns = [
     path('', root_view),
     path('admin/', admin.site.urls),
+    path('api/v1/', include('common.urls')),
     path('api/v1/', include('users.urls')),
     path('api/v1/', include('devices.urls')),
     path('api/v1/', include('telemetry.urls')),
