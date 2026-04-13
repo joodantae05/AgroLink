@@ -1,35 +1,31 @@
 const API_BASE = window.AGROLINK_API_BASE || 'http://localhost:8000/api/v1';
 const DEVICE_ID = window.AGROLINK_DEVICE_ID || '';
 
-const IOT_SENSOR_TYPES = ['humidity', 'luminosity', 'temperature', 'pressure'];
+const IOT_SENSOR_TYPES = ['temperature', 'humidity_air', 'humidity_soil'];
 const IOT_SENSOR_SET = new Set(IOT_SENSOR_TYPES);
 
 const SENSOR_LABELS_FR = {
-  humidity: 'Humidite',
-  luminosity: 'Luminosite',
   temperature: 'Temperature',
-  pressure: 'Pression'
+  humidity_air: 'Humidite air',
+  humidity_soil: 'Humidite sol'
 };
 
 const SENSOR_HINTS = {
-  humidity: 'Maintenir une humidite stable pour eviter le stress hydrique.',
-  luminosity: 'Ajuster l eclairage selon la croissance.',
   temperature: 'Conserver une temperature de confort pour la plante.',
-  pressure: 'Observer les variations atmospheriques.'
+  humidity_air: 'Eviter les extremes pour limiter le stress de la plante.',
+  humidity_soil: 'Maintenir une humidite du substrat reguliere.'
 };
 
 const SENSOR_THRESHOLDS = {
-  humidity: { min: 45, max: 75 },
-  luminosity: { min: 8000, max: 45000 },
-  temperature: { min: 18, max: 29 },
-  pressure: { min: 980, max: 1035 }
+  temperature: { min: 18, max: 30 },
+  humidity_air: { min: 45, max: 80 },
+  humidity_soil: { min: 35, max: 75 }
 };
 
 const DEFAULT_SENSORS = [
-  { type: 'humidity', label: 'Humidite', unit: '%' },
-  { type: 'luminosity', label: 'Luminosite', unit: 'lux' },
   { type: 'temperature', label: 'Temperature', unit: 'c' },
-  { type: 'pressure', label: 'Pression', unit: 'hpa' }
+  { type: 'humidity_air', label: 'Humidite air', unit: '%' },
+  { type: 'humidity_soil', label: 'Humidite sol', unit: '%' }
 ];
 
 function escapeHtml(value) {
@@ -367,24 +363,20 @@ function populateInsights(snapshot) {
 
   const critical = snapshot.find((item) => item.state.level === 'danger');
   const caution = snapshot.find((item) => item.state.level === 'warn');
-  const humidity = snapshot.find((item) => item.sensor.type === 'humidity');
   const temperature = snapshot.find((item) => item.sensor.type === 'temperature');
-  const luminosity = snapshot.find((item) => item.sensor.type === 'luminosity');
-  const pressure = snapshot.find((item) => item.sensor.type === 'pressure');
+  const humidityAir = snapshot.find((item) => item.sensor.type === 'humidity_air');
+  const humiditySoil = snapshot.find((item) => item.sensor.type === 'humidity_soil');
 
   const lines = [
-    humidity
-      ? `Humidite: ${formatValue(humidity.value)} ${humidity.sensor.unit} (${humidity.state.label}).`
-      : 'Humidite: information non disponible.',
     temperature
       ? `Temperature: ${formatValue(temperature.value)} ${temperature.sensor.unit} (${temperature.state.label}).`
       : 'Temperature: information non disponible.',
-    luminosity
-      ? `Luminosite: ${formatValue(luminosity.value)} ${luminosity.sensor.unit} (${luminosity.state.label}).`
-      : 'Luminosite: information non disponible.',
-    pressure
-      ? `Pression: ${formatValue(pressure.value)} ${pressure.sensor.unit} (${pressure.state.label}).`
-      : 'Pression: information non disponible.',
+    humidityAir
+      ? `Humidite air: ${formatValue(humidityAir.value)} ${humidityAir.sensor.unit} (${humidityAir.state.label}).`
+      : 'Humidite air: information non disponible.',
+    humiditySoil
+      ? `Humidite sol: ${formatValue(humiditySoil.value)} ${humiditySoil.sensor.unit} (${humiditySoil.state.label}).`
+      : 'Humidite sol: information non disponible.',
     critical
       ? `Priorite: corriger ${critical.sensor.label} des que possible.`
       : caution

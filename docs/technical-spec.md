@@ -4,15 +4,16 @@ Ce document couvre les parties non physiques du projet : ESP8266/IoT, backend we
 
 ## 1) Architecture globale (vue logique)
 
-Flux principal :
+Flux principal (firmware actuel) :
 
 ```
-[Capteurs] -> [ESP8266] -> (Wi-Fi / HTTPS) -> [API Backend] -> [DB] -> [Frontend Web]
+[DHT11 + sonde sol] -> [ESP8266] -> [LCD 20x4 + Serial Monitor]
+                                     -> (Wi-Fi / HTTPS) -> [API Backend] -> [DB] -> [Frontend Web]
 ```
 
 Rappels CDC (pages 10-14) :
-- Capteurs retenus pour ce projet : luminosite, humidite air/sol, CO2, nutriments, pression et chaleur.
-- ESP8266 en C++ pour capter et transmettre.
+- Sous-ensemble implante actuellement : temperature, humidite air, humidite sol.
+- ESP8266 en C++ pour capter, afficher localement et synchroniser l'API backend.
 - Web app en Python/PHP, stack Django + "Symphony" (probable Symfony).
 - Base MariaDB ou MongoDB.
 - Securite : protection XSS/SQLi, 2FA, zero-trust.
@@ -20,69 +21,51 @@ Rappels CDC (pages 10-14) :
 
 ## 2) ESP8266 / IoT (firmware, format, protocole)
 
-### 2.1 Capteurs et interfaces (POC)
+### 2.1 Capteurs et interfaces (POC actuel)
 
-Objectif : fournir des mesures propres et exploitables, sans choix definitif de model.
-- Luminosite : capteur BH1750/TSL2561 (I2C).
-- Humidite air : capteur DHT22/SHT31 (1-wire/I2C).
-- Humidite sol : capteur capacitif analogique (ADC).
-- CO2 : capteur NDIR (ex. MH-Z19, UART).
-- Nutriments : sonde EC/TDS pour indice nutritif.
-- Pression : capteur BMP280/BME280 (I2C).
-- Chaleur : temperature ambiante en degres C.
+Objectif : fournir des mesures locales stables avec capteurs reels.
+- Temperature + humidite air : DHT11 sur `D5`.
+- Humidite sol : sonde analogique sur `A0` (avec calibration `SOIL_DRY` / `SOIL_WET`).
+- Affichage local : LCD I2C 20x4 (`D2` SDA, `D1` SCL, adresse `0x27` ou `0x3F`).
 
 ### 2.2 Fonctionnalites firmware (C++)
 
 Modules cles :
-- Boot + config Wi-Fi.
-- Drivers capteurs + calibration basique.
-- Planificateur de mesures (intervalle fixe).
-- Packaging des donnees (JSON).
-- Transmission HTTPS + retries.
-- Buffer local (ring buffer) en cas d'absence reseau.
-- Time sync (NTP) pour horodatage.
-- OTA (optionnel si temps dispo).
+- Initialisation serie (`115200`) et bus I2C (`Wire.begin(D2, D1)`).
+- Lecture DHT11 (temperature/humidite air).
+- Lecture analogique sol + conversion en pourcentage (`map` + clamp 0..100).
+- Affichage LCD sur 4 lignes + log serie detaille.
+- Gestion d'erreur de lecture DHT (`isnan`).
 
-Exemple d'intervalle de mesure :
-- Toutes les 5 min pour POC.
-- Envoi par lot toutes les 5-10 mesures si batterie ou reseau fragile.
+Cadence de mesure :
+- Une mesure complete toutes les 3 secondes.
 
-### 2.3 Format des donnees (JSON)
+### 2.3 Format des donnees (JSON telemetry)
 
-Exemple de payload JSON (ASCII) :
+Le firmware envoie le JSON suivant vers l'API backend :
 
 ```json
 {
-  "device_id": "agrolink-esp-001",
-  "ts": "2025-02-01T10:15:00Z",
+  "ts": "2026-04-13T10:15:00Z",
   "readings": [
-    {"type": "luminosity", "value": 18500, "unit": "lux"},
-    {"type": "air_humidity", "value": 61.2, "unit": "%"},
-    {"type": "soil_humidity", "value": 41.5, "unit": "%"},
-    {"type": "co2", "value": 780, "unit": "ppm"},
-    {"type": "nutrient_index", "value": 68, "unit": "%"},
-    {"type": "pressure", "value": 1009.2, "unit": "hpa"},
-    {"type": "heat", "value": 23.4, "unit": "c"}
+    {"type": "temperature", "value": 23.4, "unit": "c"},
+    {"type": "humidity_air", "value": 61.2, "unit": "%"},
+    {"type": "humidity_soil", "value": 47, "unit": "%"}
   ]
 }
 ```
 
 Notes :
 - `ts` en UTC ISO-8601.
-- `type` enumere les types de capteurs.
-- `unit` stabilise l'interpretation cote backend.
+- `type` doit etre dans le catalogue backend (`temperature`, `humidity_air`, `humidity_soil`).
+- `unit` doit correspondre au catalogue backend.
 
 ### 2.4 Protocole de transmission
 
-Choix simple et robuste : HTTPS POST.
-- Endpoint : `POST /api/v1/devices/{device_id}/telemetry`
-- Authentification device : token long terme (API key) ou JWT device.
-- TLS obligatoire, pas de HTTP.
-
-Fiabilite :
-- 3 retries avec backoff.
-- En cas d'echec, stocker jusqu'a N mesures dans un buffer local.
-- Champ `battery` optionnel si alimentation autonome.
+Mode actif :
+- `POST /api/v1/devices/{device_id}/telemetry`
+- Header `X-API-Key`
+- TLS obligatoire (HTTPS)
 
 ## 3) Backend web (API, modele de donnees, auth/2FA, securite)
 
@@ -181,7 +164,7 @@ Mesures minimales :
 
 - Design sobre, lisible, fonds clairs.
 - Couleurs vertes pour etat normal, accentuation pour alertes.
-- Formats unifies : `lux`, `%`, `ppm`, `hpa`, `c`.
+- Formats unifies (POC actuel) : `%`, `c`.
 
 ## 5) RGPD + securite (politique et checklist)
 

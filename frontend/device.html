@@ -31,18 +31,20 @@
         <div>
           <p class="eyebrow">Device detail</p>
           <h1>ESP8266 - serre A</h1>
-          <p>Etat: en ligne. Derniere mesure recue il y a 2 minutes.</p>
+          <p>Etat: en ligne. Derniere mesure recue toutes les 3 secondes.</p>
           <ul class="meta-list">
-            <li><strong>Mode:</strong> cycle 5 min</li>
-            <li><strong>Reseau:</strong> Wi-Fi serre-2.4G</li>
-            <li><strong>Firmware:</strong> v1.3.2</li>
+            <li><strong>Mode:</strong> local + sync telemetry HTTPS</li>
+            <li><strong>Bus:</strong> I2C + analogique</li>
+            <li><strong>Firmware:</strong> v2.0.0</li>
           </ul>
         </div>
         <div class="surface">
           <h2>Configuration</h2>
-          <p>API key: ********</p>
-          <p class="footer-note">Conseil: faire une rotation de cle tous les 90 jours.</p>
-          <button class="button" type="button">Rotation API key</button>
+          <p>DHT11: D5 | Sol: A0</p>
+          <p>LCD I2C: SDA D2, SCL D1</p>
+          <p>Telemetrie: endpoint + X-API-Key configures dans le firmware.</p>
+          <p class="footer-note">Verifier SOIL_DRY/SOIL_WET et les identifiants reseau/API avant upload.</p>
+          <button class="button" type="button">Verifier config IoT</button>
         </div>
       </section>
 

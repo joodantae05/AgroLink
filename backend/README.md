@@ -48,7 +48,7 @@ The backend sensor catalog is defined in `common/constants.py` (`SENSOR_CATALOG`
 - Keep `type` and `unit` aligned with the payload sent by `iot/src/main.cpp`.
 - `POST /api/v1/devices/{device_id}/telemetry` only ingests known sensor types.
 - If a unit is provided and does not match the catalog unit, the reading is ignored.
-- Current sensors: `humidity`, `luminosity`, `temperature`, `pressure`.
+- Current sensors: `temperature`, `humidity_air`, `humidity_soil`.
 - `GET /api/v1/snapshot` returns the latest stored DB value for each sensor (per device, or latest active device).
 - Optional filter: `GET /api/v1/snapshot?device_id=<uuid>`.
 

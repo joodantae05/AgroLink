@@ -1,8 +1,7 @@
 SENSOR_CATALOG = [
-    {'type': 'humidity', 'label': 'Humidity', 'unit': '%'},
-    {'type': 'luminosity', 'label': 'Luminosity', 'unit': 'lux'},
     {'type': 'temperature', 'label': 'Temperature', 'unit': 'c'},
-    {'type': 'pressure', 'label': 'Pressure', 'unit': 'hpa'},
+    {'type': 'humidity_air', 'label': 'Humidite air', 'unit': '%'},
+    {'type': 'humidity_soil', 'label': 'Humidite sol', 'unit': '%'},
 ]
 
 SENSOR_TYPES = [(sensor['type'], sensor['label']) for sensor in SENSOR_CATALOG]
